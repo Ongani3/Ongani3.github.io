@@ -1,0 +1,171 @@
+/* Main Stylesheet */
+
+/* Background Image */
+body {
+    background-image: url('images/alien.jpg'); /* Set alien.jpg as the background image */
+    background-size: cover; /* Cover the entire page */
+    background-position: center; /* Center the background image */
+    color: white; /* Change font color to white */
+}
+
+/* Font Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* iPhone-like font */
+}
+
+/* Navigation Bar Styles */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #01010ab4; /* Light blue background */
+    color: white;
+    padding: 10px;
+    border-radius: 8px; /* Rounded edges */
+}
+
+nav ul {
+    display: flex; /* Use flexbox for horizontal layout */
+    justify-content: space-around; /* Space links evenly */
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: rgb(241, 241, 241);
+    text-decoration: none;
+    border: 2px solid transparent; /* Add border */
+    transition: color 0.3s, border-color 0.3s; /* Smooth color and border transition */
+}
+
+nav ul li a:hover {
+    color: #003cff; /* blue color on hover */
+    border-color: #8789ebb4; /* Change border color on hover */
+}
+
+/* Media Queries */
+@media (max-width: 1024px) {
+    nav ul li {
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .flex-container {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    nav {
+        flex-direction: column;
+    }
+}
+
+/* Flexbox Styles for Home Page */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+
+.intro {
+    flex: 1;
+    margin-right: 20px;
+    border-radius: 8px; /* Rounded edges */
+    background-color: #01010ab4; /* Light background for intro */
+    padding: 20px;
+}
+
+.sidebar {
+    flex: 0.3;
+    border-radius: 8px; /* Rounded edges */
+    background-color: #01010ab4; /* Light background for sidebar */
+    padding: 20px;
+}
+
+/* Grid Styles for Services Page */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 20px;
+}
+
+.service-card {
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 8px; /* Rounded edges */
+    transition: transform 0.2s;
+    background-color: #01010ab4; /* Light background for service cards */
+}
+
+.service-card:hover {
+    transform: scale(1.05);
+}
+
+/* Contact Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+    width: 80%; /* Set a width for the form */
+    margin: auto; /* Center the form */
+}
+
+form label {
+    margin: 10px 0 5px;
+}
+
+form input,
+form textarea {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #ccc; /* Add a border */
+    border-radius: 4px; /* Rounded edges for form fields */
+    transition: border-color 0.3s, box-shadow 0.3s; /* Focus transition */
+}
+
+form input:focus,
+form textarea:focus {
+    border-color: #041f29; /* Change border color on focus */
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5); /* Add shadow on focus */
+}
+
+form button {
+    padding: 10px;
+    background-color: #127ea8; /* Light blue button */
+    color: white;
+    border: none;
+    border-radius: 4px; /* Rounded edges for button */
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #041014; /* Darker blue on hover */
+}
+
+/* Responsive Image */
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px; /* Rounded edges for images */
+}
+
+/* Keyframes Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+header {
+    animation: fadeIn 1s ease-in;
+}
