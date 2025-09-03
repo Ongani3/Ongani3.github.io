@@ -11,6 +11,7 @@ import CustomerPortal from "./pages/CustomerPortal";
 import CustomerAuth from "./pages/CustomerAuth";
 import CustomerDetails from "./components/CustomerDetails";
 import NotFound from "./pages/NotFound";
+import TestPage from "./pages/TestPage";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,8 @@ const App = () => (
     <TooltipProvider>
       <Sonner />
       <Routes>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<TestPage />} />
+        <Route path="/crm" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/email-confirmation" element={<EmailConfirmation />} />
         <Route path="/profile" element={<Profile />} />
