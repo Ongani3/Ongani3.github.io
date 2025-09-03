@@ -20,8 +20,8 @@ const App = () => (
     <TooltipProvider>
       <Sonner />
       <Routes>
-        <Route path="/" element={<TestPage />} />
-        <Route path="/crm" element={<Index />} />
+        <Route path="/" element={<Index />} />
+        <Route path="/test" element={<TestPage />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/email-confirmation" element={<EmailConfirmation />} />
         <Route path="/profile" element={<Profile />} />
