@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { cleanupAuthState, getUserRole } from "@/utils/authUtils";
+// DatabaseTest import removed after debugging
 
 const CustomerAuth: React.FC = () => {
   const navigate = useNavigate();
@@ -90,31 +91,50 @@ const CustomerAuth: React.FC = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('=== CUSTOMER LOGIN START ===');
+    console.log('Email:', email);
+    console.log('Password length:', password.length);
+    
     setLoading(true);
     setError(null);
     
     try {
+      console.log('Step 1: Cleaning up existing auth state...');
       // Clean up existing state
       cleanupAuthState();
       
+      console.log('Step 2: Attempting global sign out...');
       // Attempt global sign out first
       try {
         await supabase.auth.signOut({ scope: 'global' });
+        console.log('Global sign out successful');
       } catch (err) {
+        console.log('Global sign out failed (continuing):', err);
         // Continue even if this fails
       }
       
+      console.log('Step 3: Attempting sign in with password...');
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password 
       });
       
-      if (error) throw error;
+      console.log('Sign in result:', { data, error });
+      
+      if (error) {
+        console.error('Sign in error:', error);
+        throw error;
+      }
       
       if (data.user) {
+        console.log('Step 4: User signed in successfully:', data.user.id);
+        console.log('User email:', data.user.email);
+        console.log('User metadata:', data.user.user_metadata);
+        
         // Check user role after successful login
         setTimeout(async () => {
           try {
+            console.log('Step 5: Checking user role...');
             const role = await getUserRole(data.user.id);
             console.log('User role after login:', role);
             
@@ -130,20 +150,25 @@ const CustomerAuth: React.FC = () => {
               // No role found, this might be a new user
               console.log('No role found for user, checking if they should be a customer');
               // Check if they have a customer profile
-              const { data: customerData } = await supabase
+              const { data: customerData, error: customerError } = await supabase
                 .from('customer_profiles')
                 .select('user_id')
                 .eq('user_id', data.user.id)
                 .single();
               
+              console.log('Customer profile check:', { customerData, customerError });
+              
               if (customerData) {
                 // They have a customer profile, create role and redirect
-                await supabase
+                console.log('Customer profile found, creating role...');
+                const { error: roleError } = await supabase
                   .from('user_roles')
                   .upsert({
                     user_id: data.user.id,
                     role: 'customer'
                   });
+                
+                console.log('Role creation result:', { roleError });
                 window.location.href = '/customer';
               } else {
                 // No customer profile, redirect to signup
@@ -154,9 +179,10 @@ const CustomerAuth: React.FC = () => {
           } catch (error) {
             console.error('Error checking user role:', error);
             // Fallback: redirect to customer portal
+            console.log('Fallback: redirecting to customer portal');
             window.location.href = '/customer';
           }
-        }, 0);
+        }, 1000); // Increased timeout to see logs
       }
     } catch (err: any) {
       setError(err.message || "Failed to sign in");
@@ -397,6 +423,8 @@ const CustomerAuth: React.FC = () => {
         )}
         </CardContent>
       </Card>
+      
+      {/* Debugging helper removed */}
     </main>
   );
 };

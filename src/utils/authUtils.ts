@@ -24,37 +24,47 @@ export const cleanupAuthState = () => {
 
 export const getUserRole = async (userId: string): Promise<UserRole | null> => {
   try {
+    console.log('getUserRole: Looking up role for user:', userId);
+    
     const { data, error } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
       .single();
     
+    console.log('getUserRole: Query result:', { data, error });
+    
     if (error) {
       console.error('Error fetching user role:', error);
       
       // If no role found, check if user exists in customer_profiles
-      const { data: customerData } = await supabase
+      console.log('getUserRole: No role found, checking customer_profiles...');
+      const { data: customerData, error: customerError } = await supabase
         .from('customer_profiles')
         .select('user_id')
         .eq('user_id', userId)
         .single();
       
+      console.log('getUserRole: Customer profile check:', { customerData, customerError });
+      
       if (customerData) {
         // User is a customer but missing role, create it
         console.log('Creating missing customer role for user:', userId);
-        await supabase
+        const { error: roleError } = await supabase
           .from('user_roles')
           .upsert({
             user_id: userId,
             role: 'customer'
           });
+        
+        console.log('getUserRole: Role creation result:', { roleError });
         return 'customer';
       }
       
       return null;
     }
     
+    console.log('getUserRole: Found role:', data.role);
     return data.role as UserRole;
   } catch (error) {
     console.error('Error in getUserRole:', error);
