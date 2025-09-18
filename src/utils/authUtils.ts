@@ -30,8 +30,28 @@ export const getUserRole = async (userId: string): Promise<UserRole | null> => {
       .eq('user_id', userId)
       .single();
     
-    if (error || !data) {
+    if (error) {
       console.error('Error fetching user role:', error);
+      
+      // If no role found, check if user exists in customer_profiles
+      const { data: customerData } = await supabase
+        .from('customer_profiles')
+        .select('user_id')
+        .eq('user_id', userId)
+        .single();
+      
+      if (customerData) {
+        // User is a customer but missing role, create it
+        console.log('Creating missing customer role for user:', userId);
+        await supabase
+          .from('user_roles')
+          .upsert({
+            user_id: userId,
+            role: 'customer'
+          });
+        return 'customer';
+      }
+      
       return null;
     }
     

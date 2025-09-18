@@ -114,12 +114,46 @@ const CustomerAuth: React.FC = () => {
       if (data.user) {
         // Check user role after successful login
         setTimeout(async () => {
-          const role = await getUserRole(data.user.id);
-          if (role === 'admin') {
-            // Admin trying to access customer portal, redirect them
-            window.location.href = '/auth';
-          } else {
-            // Customer user, proceed to customer portal
+          try {
+            const role = await getUserRole(data.user.id);
+            console.log('User role after login:', role);
+            
+            if (role === 'admin') {
+              // Admin trying to access customer portal, redirect them
+              console.log('Admin user detected, redirecting to admin auth');
+              window.location.href = '/auth';
+            } else if (role === 'customer') {
+              // Customer user, proceed to customer portal
+              console.log('Customer user detected, redirecting to customer portal');
+              window.location.href = '/customer';
+            } else {
+              // No role found, this might be a new user
+              console.log('No role found for user, checking if they should be a customer');
+              // Check if they have a customer profile
+              const { data: customerData } = await supabase
+                .from('customer_profiles')
+                .select('user_id')
+                .eq('user_id', data.user.id)
+                .single();
+              
+              if (customerData) {
+                // They have a customer profile, create role and redirect
+                await supabase
+                  .from('user_roles')
+                  .upsert({
+                    user_id: data.user.id,
+                    role: 'customer'
+                  });
+                window.location.href = '/customer';
+              } else {
+                // No customer profile, redirect to signup
+                console.log('No customer profile found, redirecting to signup');
+                window.location.href = '/customer/auth';
+              }
+            }
+          } catch (error) {
+            console.error('Error checking user role:', error);
+            // Fallback: redirect to customer portal
             window.location.href = '/customer';
           }
         }, 0);
@@ -164,6 +198,7 @@ const CustomerAuth: React.FC = () => {
 
       // Create customer profile with store association
       if (data.user) {
+        // Create customer profile
         await supabase
           .from('customer_profiles')
           .upsert({
@@ -171,6 +206,14 @@ const CustomerAuth: React.FC = () => {
             first_name: displayName.split(' ')[0] || '',
             last_name: displayName.split(' ').slice(1).join(' ') || '',
             store_id: selectedStore
+          });
+
+        // Create user role for customer
+        await supabase
+          .from('user_roles')
+          .upsert({
+            user_id: data.user.id,
+            role: 'customer'
           });
       }
       
