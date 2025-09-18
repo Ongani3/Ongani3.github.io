@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,16 +11,14 @@ type ChatMessage = {
 };
 
 async function sendChat(messages: { role: string; content: string }[]) {
-  const resp = await fetch("/functions/v1/ai-chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages }),
+  // Use Supabase Edge Functions via the Supabase client so it works on GitHub Pages
+  const { data, error } = await supabase.functions.invoke("ai-chat", {
+    body: { messages },
   });
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error(text);
+  if (error) {
+    throw new Error(error.message || "Edge function error");
   }
-  return resp.json();
+  return data as any;
 }
 
 const CustomerChatbot: React.FC = () => {
