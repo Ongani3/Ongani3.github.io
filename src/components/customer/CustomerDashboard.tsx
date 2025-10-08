@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { handleSignOut } from '@/utils/authUtils';
 import { 
   Star, 
   Gift, 
@@ -91,6 +93,20 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ user }) =>
               <p className="text-primary-foreground/80 mt-2">
                 Here's what's happening with your account
               </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => document.getElementById('faqs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              >
+                View FAQs
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleSignOut('/customer/auth')}
+              >
+                Logout
+              </Button>
             </div>
             {customerData && (
               <div className="text-right">
@@ -244,6 +260,71 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ user }) =>
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No recent activity to show</p>
               <p className="text-sm mt-1">Your purchases and interactions will appear here</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* FAQs Section */}
+        <div id="faqs" className="scroll-mt-24">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Frequently Asked Questions
+              </CardTitle>
+              <CardDescription>Quick answers to common customer questions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>How do I track my order?</AccordionTrigger>
+                  <AccordionContent>
+                    You can view your order history and live delivery status under "My Orders" in the dashboard.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>What is your return policy?</AccordionTrigger>
+                  <AccordionContent>
+                    Most items can be returned within 7 days in original condition with receipt. See store policies below for details.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>How do I redeem loyalty points?</AccordionTrigger>
+                  <AccordionContent>
+                    Go to "Redeem Points" to convert points into discounts at checkout. 100 points = K10 discount.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Store Policies (Examples) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Store Policies (Examples)
+            </CardTitle>
+            <CardDescription>These are placeholders — update to match your store</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="font-medium">Returns & Exchanges:</span> Items may be returned within 7 days with proof of purchase. Excludes perishable and clearance items.
+              </div>
+              <div>
+                <span className="font-medium">Warranty:</span> Electronics include a 6-month limited warranty against manufacturer defects.
+              </div>
+              <div>
+                <span className="font-medium">Deliveries:</span> Standard delivery within 2–3 business days in major cities; remote areas may take longer.
+              </div>
+              <div>
+                <span className="font-medium">Payments:</span> We accept VISA, Mastercard, mobile money, and cash on delivery (selected areas).
+              </div>
+              <div>
+                <span className="font-medium">Privacy:</span> We only use your data to fulfill orders and personalize your experience. See full privacy policy on our website.
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff } from 'lucide-react';
 import { CallManager, CallSession } from '@/utils/CallManager';
+import { endExternalCallSession } from '@/utils/ExternalCall';
 
 interface CallInterfaceProps {
   callManager: CallManager;
@@ -65,7 +66,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     setIsCameraOff(cameraOff);
   };
 
-  const handleEndCall = () => {
+  const handleEndCall = async () => {
+    // Attempt to end external logged session as well
+    try { await endExternalCallSession(session.id); } catch {}
     callManager.endCall();
     onEndCall();
   };
@@ -99,41 +102,14 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
           </div>
         </div>
 
-        {/* Video Area */}
+        {/* External call embed */}
         <div className="flex-1 relative bg-muted/30">
-          {session.call_type === 'video' ? (
-            <>
-              {/* Remote Video */}
-              <video
-                ref={remoteVideoRef}
-                autoPlay
-                playsInline
-                className="w-full h-full object-cover"
-              />
-              
-              {/* Local Video (Picture-in-Picture) */}
-              <Card className="absolute top-4 right-4 w-48 h-36 overflow-hidden">
-                <video
-                  ref={localVideoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
-                />
-              </Card>
-            </>
-          ) : (
-            /* Audio Call UI */
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="w-32 h-32 bg-primary rounded-full flex items-center justify-center mb-6">
-                <Phone className="w-16 h-16 text-primary-foreground" />
-              </div>
-              <h3 className="text-2xl font-semibold mb-2">Audio Call</h3>
-              <p className="text-muted-foreground">
-                {session.caller_type === 'customer' ? 'Connected to Store' : 'Connected to Customer'}
-              </p>
-            </div>
-          )}
+          <iframe
+            title="External Call"
+            src={`/WEB_UIKITS.html?roomID=${session.id}`}
+            className="w-full h-full border-0"
+            allow="camera; microphone; display-capture; clipboard-read; clipboard-write"
+          />
         </div>
 
         {/* Hidden audio element for remote stream (audio-only and video calls) */}

@@ -8,6 +8,7 @@ import { CallHistory } from '../calls/CallHistory';
 import { PresenceIndicator } from '../calls/PresenceIndicator';
 import { usePresence } from '@/hooks/usePresence';
 import { CallManager, CallSession, UserPresence } from '@/utils/CallManager';
+import { createExternalCallSession } from '@/utils/ExternalCall';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@supabase/supabase-js';
@@ -93,13 +94,20 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
         return;
       }
 
-      const session = await callManager.initiateCall(
+      const session = await createExternalCallSession(
         availableAdmin.user_id,
         callType,
         'customer'
       );
-      
-      setActiveCall(session);
+      setActiveCall({
+        id: session.id,
+        caller_id: user.id,
+        callee_id: availableAdmin.user_id,
+        call_type: callType,
+        status: 'active',
+        start_time: session.start_time,
+        caller_type: 'customer'
+      });
       updatePresence('in_call');
 
       toast({
@@ -201,25 +209,15 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
               </div>
             </div>
 
-            {/* Call Buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={() => handleCallStore('audio')}
-                disabled={!isStoreOnline}
-                className="h-16 flex-col gap-2"
-              >
-                <Phone className="w-6 h-6" />
-                <span>Audio Call</span>
-              </Button>
-
+            {/* Communicate Button */}
+            <div>
               <Button
                 onClick={() => handleCallStore('video')}
                 disabled={!isStoreOnline}
-                variant="outline"
-                className="h-16 flex-col gap-2"
+                className="h-16 w-full flex gap-2 items-center justify-center"
               >
-                <Video className="w-6 h-6" />
-                <span>Video Call</span>
+                <Phone className="w-5 h-5" />
+                <span>Communicate with Store</span>
               </Button>
             </div>
 

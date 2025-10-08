@@ -10,6 +10,7 @@ import { CallInterface } from './calls/CallInterface';
 import { CallNotification } from './calls/CallNotification';
 import { usePresence } from '@/hooks/usePresence';
 import { CallManager, CallSession, UserPresence } from '@/utils/CallManager';
+import { createExternalCallSession } from '@/utils/ExternalCall';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -280,7 +281,10 @@ export const Calls: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => console.log('Audio call to', customer.user_id)}
+                          onClick={async () => {
+                            const session = await createExternalCallSession(customer.user_id, 'audio', 'admin');
+                            setActiveCall({ ...incomingCall, id: session.id } as any);
+                          }}
                         >
                           <Phone className="w-4 h-4 mr-1" />
                           Call
@@ -288,7 +292,10 @@ export const Calls: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => console.log('Video call to', customer.user_id)}
+                          onClick={async () => {
+                            const session = await createExternalCallSession(customer.user_id, 'video', 'admin');
+                            setActiveCall({ ...incomingCall, id: session.id } as any);
+                          }}
                         >
                           <Video className="w-4 h-4 mr-1" />
                           Video
