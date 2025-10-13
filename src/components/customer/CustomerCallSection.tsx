@@ -38,15 +38,18 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
   useEffect(() => {
     // Listen for incoming calls
     const callChannel = supabase
-      .channel('customer-call-sessions')
+      .channel('call-sessions')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
-        table: 'call_sessions',
-        filter: `callee_id=eq.${user.id}`
+        table: 'call_sessions'
       }, (payload) => {
         console.log('Customer incoming call:', payload);
-        setIncomingCall(payload.new as CallSession);
+        const session = payload.new as CallSession;
+        // Filter in JS to ensure we only process calls where we are the callee
+        if (session.callee_id === user.id) {
+          setIncomingCall(session);
+        }
       })
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -55,14 +58,16 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
       }, (payload) => {
         console.log('Customer call status updated:', payload);
         const session = payload.new as CallSession;
-        
-        if (session.status === 'active') {
-          // Call was accepted, start the call interface
-          setActiveCall(session);
-          setIncomingCall(null);
-        } else if (session.status === 'ended' || session.status === 'declined') {
-          setActiveCall(null);
-          setIncomingCall(null);
+        // Filter to only process updates where we are involved
+        if (session.caller_id === user.id || session.callee_id === user.id) {
+          if (session.status === 'active') {
+            // Call was accepted, start the call interface
+            setActiveCall(session);
+            setIncomingCall(null);
+          } else if (session.status === 'ended' || session.status === 'declined') {
+            setActiveCall(null);
+            setIncomingCall(null);
+          }
         }
       })
       .subscribe();
