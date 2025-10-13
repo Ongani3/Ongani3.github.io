@@ -40,51 +40,46 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const roomID = session.id; // Use session ID as room ID for the external service
 
   return (
-    <div className="fixed inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b">
+    <div className="fixed inset-0 bg-black z-50">
+      {/* Video Area - full screen iframe */}
+      <div className="w-full h-full relative">
+        <iframe
+          src={`/WEB_UIKITS.html?roomID=${roomID}`}
+          title="Video Call"
+          allow="camera; microphone; display-capture"
+          className="w-full h-full border-0"
+        ></iframe>
+
+        {/* Overlay Header - minimal and semi-transparent */}
+        <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4 bg-black/30 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <Phone className="w-4 h-4 text-primary-foreground" />
             </div>
             <div>
-              <h3 className="font-semibold">
+              <h3 className="font-semibold text-white">
                 {session.caller_type === 'customer' ? 'Store Call' : 'Customer Call'}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/80">
                 {formatDuration(callDuration)} • {session.call_type}
               </p>
             </div>
           </div>
-          <div className="text-sm font-medium px-3 py-1 bg-green-100 text-green-700 rounded-full">
+          <div className="text-sm font-medium px-3 py-1 bg-green-500 text-white rounded-full">
             Connected
           </div>
         </div>
 
-        {/* Video Area - now an iframe */}
-        <div className="flex-1 relative bg-muted/30">
-          <iframe
-            src={`/WEB_UIKITS.html?roomID=${roomID}`}
-            title="Video Call"
-            allow="camera; microphone; display-capture"
-            className="w-full h-full border-0"
-          ></iframe>
-        </div>
-
-        {/* Controls */}
-        <div className="p-6 border-t bg-background/95">
-          <div className="flex justify-center gap-4">
-            {/* Mute/Camera buttons are now handled by the external service within the iframe */}
-            <Button
-              variant="destructive"
-              size="lg"
-              onClick={handleEndCall}
-              className="w-14 h-14 rounded-full"
-            >
-              <PhoneOff className="w-6 h-6" />
-            </Button>
-          </div>
+        {/* Minimal Overlay Controls - positioned higher to avoid external app buttons */}
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
+          <Button
+            variant="destructive"
+            size="lg"
+            onClick={handleEndCall}
+            className="w-14 h-14 rounded-full shadow-lg bg-red-600 hover:bg-red-700"
+          >
+            <PhoneOff className="w-6 h-6" />
+          </Button>
         </div>
       </div>
     </div>
