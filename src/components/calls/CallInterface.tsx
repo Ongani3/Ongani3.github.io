@@ -1,51 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff } from 'lucide-react';
-import { CallManager, CallSession } from '@/utils/CallManager';
+import { Phone, PhoneOff } from 'lucide-react';
+import { CallSession } from '@/utils/CallManager';
 import { endExternalCallSession } from '@/utils/ExternalCall';
 
 interface CallInterfaceProps {
-  callManager: CallManager;
   session: CallSession;
   onEndCall: () => void;
 }
 
 export const CallInterface: React.FC<CallInterfaceProps> = ({
-  callManager,
   session,
   onEndCall
 }) => {
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteAudioRef = useRef<HTMLAudioElement>(null);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
 
   useEffect(() => {
-    // Set up local video stream
-    const localStream = callManager.getLocalStream();
-    if (localVideoRef.current && localStream) {
-      localVideoRef.current.srcObject = localStream;
-    }
-
-    // Set up remote video stream callback
-    callManager.setOnRemoteStream((stream) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = stream;
-      }
-      if (remoteAudioRef.current) {
-        remoteAudioRef.current.srcObject = stream;
-      }
-    });
-
-    // Set up call end callback
-    callManager.setOnCallEnd(() => {
-      onEndCall();
-    });
-
-    // Start call timer
     const startTime = Date.now();
     const timer = setInterval(() => {
       setCallDuration(Math.floor((Date.now() - startTime) / 1000));
@@ -54,22 +24,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     return () => {
       clearInterval(timer);
     };
-  }, [callManager, onEndCall]);
-
-  const handleToggleMute = async () => {
-    const muted = await callManager.toggleMute();
-    setIsMuted(muted);
-  };
-
-  const handleToggleCamera = async () => {
-    const cameraOff = await callManager.toggleCamera();
-    setIsCameraOff(cameraOff);
-  };
+  }, []);
 
   const handleEndCall = async () => {
-    // Attempt to end external logged session as well
-    try { await endExternalCallSession(session.id); } catch {}
-    callManager.endCall();
+    await endExternalCallSession(session.id);
     onEndCall();
   };
 
@@ -78,6 +36,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const roomID = session.id; // Use session ID as room ID for the external service
 
   return (
     <div className="fixed inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
@@ -102,42 +62,20 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
           </div>
         </div>
 
-        {/* External call embed */}
+        {/* Video Area - now an iframe */}
         <div className="flex-1 relative bg-muted/30">
           <iframe
-            title="External Call"
-            src={`/WEB_UIKITS.html?roomID=${session.id}`}
+            src={`/WEB_UIKITS.html?roomID=${roomID}`}
+            title="Video Call"
+            allow="camera; microphone; display-capture"
             className="w-full h-full border-0"
-            allow="camera; microphone; display-capture; clipboard-read; clipboard-write"
-          />
+          ></iframe>
         </div>
-
-        {/* Hidden audio element for remote stream (audio-only and video calls) */}
-        <audio ref={remoteAudioRef} autoPlay />
 
         {/* Controls */}
         <div className="p-6 border-t bg-background/95">
           <div className="flex justify-center gap-4">
-            <Button
-              variant={isMuted ? "destructive" : "outline"}
-              size="lg"
-              onClick={handleToggleMute}
-              className="w-14 h-14 rounded-full"
-            >
-              {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-            </Button>
-
-            {session.call_type === 'video' && (
-              <Button
-                variant={isCameraOff ? "destructive" : "outline"}
-                size="lg"
-                onClick={handleToggleCamera}
-                className="w-14 h-14 rounded-full"
-              >
-                {isCameraOff ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
-              </Button>
-            )}
-
+            {/* Mute/Camera buttons are now handled by the external service within the iframe */}
             <Button
               variant="destructive"
               size="lg"

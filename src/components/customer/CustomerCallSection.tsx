@@ -8,7 +8,7 @@ import { CallHistory } from '../calls/CallHistory';
 import { PresenceIndicator } from '../calls/PresenceIndicator';
 import { usePresence } from '@/hooks/usePresence';
 import { CallManager, CallSession, UserPresence } from '@/utils/CallManager';
-import { createExternalCallSession } from '@/utils/ExternalCall';
+import { createExternalCallSession, acceptExternalCall, declineExternalCall } from '@/utils/ExternalCall';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@supabase/supabase-js';
@@ -56,7 +56,11 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
         console.log('Customer call status updated:', payload);
         const session = payload.new as CallSession;
         
-        if (session.status === 'ended' || session.status === 'declined') {
+        if (session.status === 'active') {
+          // Call was accepted, start the call interface
+          setActiveCall(session);
+          setIncomingCall(null);
+        } else if (session.status === 'ended' || session.status === 'declined') {
           setActiveCall(null);
           setIncomingCall(null);
         }
@@ -94,25 +98,15 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
         return;
       }
 
-      const session = await createExternalCallSession(
+      await createExternalCallSession(
         availableAdmin.user_id,
         callType,
         'customer'
       );
-      setActiveCall({
-        id: session.id,
-        caller_id: user.id,
-        callee_id: availableAdmin.user_id,
-        call_type: callType,
-        status: 'active',
-        start_time: session.start_time,
-        caller_type: 'customer'
-      });
-      updatePresence('in_call');
-
+      // Don't set activeCall immediately - wait for acceptance
       toast({
-        title: "Calling Store",
-        description: `Initiating ${callType} call with store...`,
+        title: "Call Initiated",
+        description: "Waiting for store staff to answer...",
       });
     } catch (error) {
       console.error('Failed to initiate call:', error);
@@ -128,7 +122,7 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
     if (!incomingCall) return;
 
     try {
-      await callManager.acceptCall(incomingCall.id);
+      await acceptExternalCall(incomingCall.id);
       setActiveCall(incomingCall);
       setIncomingCall(null);
       updatePresence('in_call');
@@ -146,7 +140,7 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
     if (!incomingCall) return;
 
     try {
-      await callManager.declineCall(incomingCall.id);
+      await declineExternalCall(incomingCall.id);
       setIncomingCall(null);
     } catch (error) {
       console.error('Failed to decline call:', error);
@@ -162,7 +156,6 @@ export const CustomerCallSection: React.FC<CustomerCallSectionProps> = ({ user }
   if (activeCall) {
     return (
       <CallInterface
-        callManager={callManager}
         session={activeCall}
         onEndCall={handleEndCall}
       />

@@ -10,7 +10,7 @@ import { CallInterface } from './calls/CallInterface';
 import { CallNotification } from './calls/CallNotification';
 import { usePresence } from '@/hooks/usePresence';
 import { CallManager, CallSession, UserPresence } from '@/utils/CallManager';
-import { createExternalCallSession } from '@/utils/ExternalCall';
+import { createExternalCallSession, acceptExternalCall, declineExternalCall } from '@/utils/ExternalCall';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -52,7 +52,11 @@ export const Calls: React.FC = () => {
         console.log('Call status updated:', payload);
         const session = payload.new as CallSession;
         
-        if (session.status === 'ended' || session.status === 'declined') {
+        if (session.status === 'active') {
+          // Call was accepted, start the call interface
+          setActiveCall(session);
+          setIncomingCall(null);
+        } else if (session.status === 'ended' || session.status === 'declined') {
           setActiveCall(null);
           setIncomingCall(null);
         }
@@ -102,7 +106,7 @@ export const Calls: React.FC = () => {
     if (!incomingCall) return;
 
     try {
-      await callManager.acceptCall(incomingCall.id);
+      await acceptExternalCall(incomingCall.id);
       setActiveCall(incomingCall);
       setIncomingCall(null);
       updatePresence('in_call');
@@ -120,7 +124,7 @@ export const Calls: React.FC = () => {
     if (!incomingCall) return;
 
     try {
-      await callManager.declineCall(incomingCall.id);
+      await declineExternalCall(incomingCall.id);
       setIncomingCall(null);
     } catch (error) {
       console.error('Failed to decline call:', error);
@@ -144,7 +148,6 @@ export const Calls: React.FC = () => {
   if (activeCall) {
     return (
       <CallInterface
-        callManager={callManager}
         session={activeCall}
         onEndCall={handleEndCall}
       />
@@ -282,23 +285,24 @@ export const Calls: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const session = await createExternalCallSession(customer.user_id, 'audio', 'admin');
-                            setActiveCall({ ...incomingCall, id: session.id } as any);
+                            try {
+                              await createExternalCallSession(customer.user_id, 'video', 'admin');
+                              toast({
+                                title: "Call Initiated",
+                                description: "Waiting for customer to answer...",
+                              });
+                            } catch (error) {
+                              console.error('Failed to start call:', error);
+                              toast({
+                                title: "Call Failed",
+                                description: "Unable to start the call. Please try again.",
+                                variant: "destructive",
+                              });
+                            }
                           }}
                         >
                           <Phone className="w-4 h-4 mr-1" />
                           Call
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={async () => {
-                            const session = await createExternalCallSession(customer.user_id, 'video', 'admin');
-                            setActiveCall({ ...incomingCall, id: session.id } as any);
-                          }}
-                        >
-                          <Video className="w-4 h-4 mr-1" />
-                          Video
                         </Button>
                       </div>
                     </div>

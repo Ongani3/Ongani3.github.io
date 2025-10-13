@@ -23,7 +23,7 @@ export async function createExternalCallSession(
       callee_id: calleeId,
       call_type: callType,
       caller_type: callerType,
-      status: 'active',
+      status: 'pending', // Start as pending to trigger notification
       start_time: new Date().toISOString(),
     })
     .select('*')
@@ -31,6 +31,24 @@ export async function createExternalCallSession(
 
   if (error || !data) throw error || new Error('Failed to create call session');
   return { id: data.id, start_time: data.start_time };
+}
+
+export async function acceptExternalCall(sessionId: string): Promise<void> {
+  const { error } = await supabase
+    .from('call_sessions')
+    .update({ status: 'active' })
+    .eq('id', sessionId);
+
+  if (error) throw error;
+}
+
+export async function declineExternalCall(sessionId: string): Promise<void> {
+  const { error } = await supabase
+    .from('call_sessions')
+    .update({ status: 'declined', end_time: new Date().toISOString() })
+    .eq('id', sessionId);
+
+  if (error) throw error;
 }
 
 export async function endExternalCallSession(sessionId: string): Promise<void> {
