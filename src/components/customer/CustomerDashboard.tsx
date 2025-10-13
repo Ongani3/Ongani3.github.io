@@ -83,7 +83,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ user }) =>
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
       {/* Header */}
-      <div className="bg-primary text-primary-foreground p-6">
+      <div className="bg-primary text-primary-foreground p-6 relative">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
@@ -93,20 +93,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ user }) =>
               <p className="text-primary-foreground/80 mt-2">
                 Here's what's happening with your account
               </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => document.getElementById('faqs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              >
-                View FAQs
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleSignOut('/customer/auth')}
-              >
-                Logout
-              </Button>
             </div>
             {customerData && (
               <div className="text-right">
@@ -118,6 +104,21 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ user }) =>
               </div>
             )}
           </div>
+        </div>
+        {/* Buttons positioned far to the top right */}
+        <div className="absolute top-4 right-4 flex items-center gap-3">
+          <Button
+            variant="secondary"
+            onClick={() => document.getElementById('faqs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          >
+            View FAQs
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleSignOut('/customer/auth')}
+          >
+            Logout
+          </Button>
         </div>
       </div>
 
