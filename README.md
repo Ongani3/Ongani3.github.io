@@ -79,7 +79,6 @@ The database consists of **33 tables** organized into logical domains:
 - **`quotes`**: Sales quotations
 - **`invoices`**: Billing and invoicing
 - **`services`**: Service offerings and appointments
-- **`appointments`**: Service scheduling
 - **`promotions`**: Discount and promotion management
 - **`rewards`**: Loyalty reward catalog
 
@@ -87,23 +86,11 @@ The database consists of **33 tables** organized into logical domains:
 - **`promotional_emails`**: Marketing campaign templates
 - **`email_campaigns`**: Campaign execution tracking
 - **`notifications`**: In-app notifications
-- **`surveys`**: Customer feedback collection
-- **`survey_responses`**: Survey submission data
-
-### Customer Support
-- **`complaints`**: Customer complaint management
-- **`support_tickets`**: Formal support requests
-- **`support_messages`**: Ticket conversation threads
-- **`reviews`**: Product/service reviews
 
 ### Communication Features
-- **`call_sessions`**: WebRTC call management
+- **`call_sessions`**: ZegoCloud call management
 - **`call_logs`**: Call history and quality metrics
-- **`call_settings`**: User call preferences
 - **`user_presence`**: Real-time online status
-
-### Document Management
-- **`customer_documents`**: File attachments and document sharing
 
 ---
 
@@ -123,10 +110,8 @@ The database consists of **33 tables** organized into logical domains:
 - Customer communication history
 
 #### **Sales Management**
-- Point-of-sale transaction recording
 - Sales history and reporting
 - Daily/monthly sales summaries
-- Payment method tracking
 
 #### **Quotes & Invoicing**
 - Professional quote generation
@@ -141,16 +126,14 @@ The database consists of **33 tables** organized into logical domains:
 - Email open/click tracking
 
 #### **Communication Tools**
-- WebRTC audio/video calling
+- Zegocloud audio/video calling
 - Real-time presence indicators
 - Call history and quality metrics
 - Customer complaint management
 
 #### **Business Operations**
-- Service appointment scheduling
-- Store settings and configuration
+- Store settings and configuration(Admin Accounts)
 - Staff management and permissions
-- Document sharing with customers
 
 ### Customer Portal Features
 
@@ -168,15 +151,12 @@ The database consists of **33 tables** organized into logical domains:
 
 #### **Self-Service Tools**
 - Order history and tracking
-- Appointment scheduling
 - Profile management
 - Address book management
 
 #### **Communication**
-- Direct calling to store via WebRTC
-- Support ticket submission
-- Review and feedback submission
-- Complaint filing system
+- Direct calling to store via Zegocloud
+- Review and feedback from Customer Servicce
 
 ---
 
@@ -226,15 +206,9 @@ Every table implements comprehensive RLS policies ensuring:
 - **Campaign Management**: Template-based email campaigns
 - **Analytics**: Open rates, click tracking, conversion metrics
 
-### Payment Processing
-- **Stripe Integration**: Secure payment processing
-- **Multiple Payment Methods**: Credit cards, mobile money, cash
-- **Payment History**: Complete transaction logging
 
 ### Communication
-- **WebRTC**: Browser-based audio/video calling
-- **Real-time Messaging**: Instant notifications and updates
-- **File Sharing**: Document upload and sharing capabilities
+- **ZegoCloud**: Browser-based audio/video calling and messaging API
 
 ---
 
